@@ -1,0 +1,32 @@
+/*
+* Name - Avni Goyal
+* Seneca Email - agoyal31@myseneca.ca
+* Seneca Student ID - 166795211
+* Date of completion - 2023/08/07
+*/
+//I have done all the coding by myself and only copied the code that my professor provided to complete my workshops and assignments.
+
+
+This project had been trickest of all the workshops I did since the begining of the semester. There is alot going on. To explain everything, lets first understand what is the goal. We are trying to make an order assembly line which is
+taking care of different customer orders. There are different Workstations or stations in the assembly line. Each worlstation have its own item assigned to it for example -> desk, nighttable, dresser, etc. It also contains serial number
+associated to the item with it. Then there is a customer order. A customer order have customer name, customer list of items (eg- desk, dresser, etc), empty serial number and a flag with each item which tells if an item is filled or not.
+Our job now is that, we move each of the customer's order from the starting of the station till the end and try to fill the item at each station with the item station have to offer (if it is needed by the order). Once the item is either
+filled or unfilled based on that, it is transferred to completed or incompleted order list.
+Implementation -
+All the orders of the customers are in g_pending deque. g_completed and g_incomplete deques are initially empty. There is alot of to explain in this milestone but I will choose some important key tasks that are taking care of the execution
+and try to expain it. The way the execution is working is basically dependent on the run function. All the major tasks are being taken care by the run function made in LineManager.cpp module. There are another two main modules -
+Workstation and CustomerOrder. CustomerOrder have members like Struct of item having 3 things, name of customer, count of customer Order, etc. The Workstation module have everything that a station have (because it is derived form station)
+like item handled name, serial, etc. plus some addiitonal members specific to the Workstation like m_orders (which is a deque of CustomerOrders) and pointer to the next workstation Workstation* m_pNextStation;. The LineManager module have a stitic memeber
+static int numberOfTimesCalled{}. It just keeps track how many times this function is called. Moving further, it checks if the g_pending is not empty, it will move the order at front of the g_pending to the first station of the AssemblyLine.
+The function += overload is responsible for this --> *m_firstStation += move(g_pending.front()). This function, inserts the order at the back of m_orders, which is a deque of CustomerOrders. After that, we remove the order from the front
+of g_pending. Now we are trying to fill the orders at each workstation ->      
+ for_each(m_activeLine.begin(), m_activeLine.end(), [&](Workstation* ws) { // activeLine contains all the workstations
+         ws->fill(os);
+ });
+ It will iterate through each workstation and if the m_orders at that workstation have somthing in it (it will always have for the 1st order because 1st order is explicitly being added by us always when we iteration run function-- *m_firstStation += move(g_pending.front()))
+ then it will try to fill that order. FillItem function is made in CustomerOrder.cpp which is taking of this. It is first checking that out of all the items of a customer order in the m_order, which item is handles by the workstation. It then
+ try to fill that item by copying the serial number and changing the flag of isFilled to true. It keep on doing it for all the active stations. Once this is done, then we try to move order at each active line to the next workstation. It
+ does so by calling the attemptToMoveOrder() function. This function checks if the m_orders is not empty, if the items are filled completely or the quantity in stock is < 0, then it will move the item by using the += operator overloaded.
+ An important thing to take care in this function is that once we move an order from one workstation to other, we have to pop that order fron the existing workstation.  and if the next workstation is empty then based on if the order is filled
+ it is either moved to g_complete list or g_incomplete list. if the order is moved successfully, we return true, otherwise false in returned (in case the m_orders is empty). Finally, we are using the iomanipulators to modify the output
+ as required. Thats how all the milestone is working combined.
